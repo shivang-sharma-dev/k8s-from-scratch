@@ -1,0 +1,43 @@
+# A Deployment manages a ReplicaSet and provides:
+# - Desired state declaration (X replicas of this pod template)
+# - Rolling updates  — update pods one by one with zero downtime
+# - Rollback         — revert to any previous revision instantly
+# - Self-healing     — replaces crashed or deleted pods automatically
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: nginx-deployment
+  namespace: dev-env
+
+spec:
+  replicas: 3                       # How many pod copies to run
+
+  selector:
+    matchLabels:
+      app: nginx                    # Must match the pod template labels below
+
+  strategy:
+    type: RollingUpdate             # Replace pods gradually (zero downtime)
+    rollingUpdate:
+      maxSurge: 1                   # Allow 1 extra pod during the update
+      maxUnavailable: 0             # Never go below the desired count
+
+  template:                         # This is the pod blueprint
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.25         # Pin to a specific version in production
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"           # Minimum CPU (100 millicores = 0.1 vCPU)
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"

@@ -1,0 +1,49 @@
+# A StatefulSet is like a Deployment but for stateful applications.
+# Differences from Deployment:
+# - Pods get stable, ordered names: app-0, app-1, app-2
+# - Pods are created/deleted in order (0 before 1, 2 before 1 on delete)
+# - Each pod gets its own PersistentVolumeClaim (data is NOT shared)
+#
+# Use cases: databases (MySQL, PostgreSQL), Kafka, Zookeeper, Redis clusters
+
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: mysql
+  namespace: dev-env
+
+spec:
+  serviceName: "mysql"              # Headless service name (required for stable DNS)
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: mysql
+
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "rootpassword"   # In real use, reference a Secret instead
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+
+  # Each pod gets its OWN PVC — data is NOT shared between replicas
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

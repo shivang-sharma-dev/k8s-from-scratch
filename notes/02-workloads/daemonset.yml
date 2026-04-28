@@ -1,0 +1,41 @@
+# A DaemonSet ensures ONE pod runs on EVERY node in the cluster.
+# When a new node is added, a pod is automatically scheduled on it.
+# When a node is removed, the pod is garbage-collected.
+#
+# Use cases:
+# - Log collectors (Fluentd, Filebeat)
+# - Node monitoring agents (Datadog, Prometheus node exporter)
+# - Network plugins (CNI)
+
+apiVersion: apps/v1
+kind: DaemonSet
+
+metadata:
+  name: log-collector
+  namespace: dev-env
+
+spec:
+  selector:
+    matchLabels:
+      app: log-collector
+
+  template:
+    metadata:
+      labels:
+        app: log-collector
+    spec:
+      containers:
+        - name: fluentd
+          image: fluent/fluentd:latest
+          resources:
+            limits:
+              memory: "200Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log       # Read host logs
+
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log              # Mount from the node filesystem

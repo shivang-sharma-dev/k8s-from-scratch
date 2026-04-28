@@ -1,0 +1,29 @@
+# A ReplicaSet ensures that a specified number of pod replicas are running at any time.
+# NOTE: In practice, you almost never create a ReplicaSet directly.
+#       Use a Deployment instead — it manages a ReplicaSet for you and adds update/rollback.
+#       This file is here purely for learning purposes.
+
+apiVersion: apps/v1
+kind: ReplicaSet
+
+metadata:
+  name: nginx-replicaset
+  namespace: dev-env
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: nginx
+
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
