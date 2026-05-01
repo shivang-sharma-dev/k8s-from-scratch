@@ -22,5 +22,13 @@ spec:
           ports:
             - containerPort: 80
 
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: my-volume
+            
+      volumes:
+        - name: my-volume
+          persistentVolumeClaim:
+            claimName: local-pv
     
   

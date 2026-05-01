@@ -1,0 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+
+metadata: 
+  namespace: nginx-app
+  name: local-pv
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-storage
